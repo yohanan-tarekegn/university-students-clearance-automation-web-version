@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Clearance System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+    <div id="app">
+        <!-- Auth Screen -->
+        <div id="auth-screen" class="panel">
+            <div class="header">
+                <h1>Clearance System</h1>
+                <p>Login Portal</p>
+            </div>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="role">Select Role</label>
+                    <select id="role" required>
+                        <option value="student">Student</option>
+                        <option value="staff">Staff / Department</option>
+                        <option value="admin">System Admin</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="username">User ID (Username)</label>
+                    <input type="text" id="username" placeholder="e.g., STU-1234 or STAFF-LIB" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Login</button>
+            </form>
+            <div style="margin-top:20px; font-size: 13px; color: #666; text-align:center;">
+                <p>Demo Admin: ADMIN-1 / pass123</p>
+                <p>Demo Staff: STAFF-LIB / pass123</p>
+                <p>Demo Student: STU-1234 / pass123</p>
+            </div>
+        </div>
+
+        <!-- Student Dashboard -->
+        <div id="student-dashboard" class="hidden">
+            <nav class="navbar panel">
+                <h2>Student Dashboard</h2>
+                <div class="user-profile">
+                    <div>
+                        <span id="student-name" style="font-weight:bold;">Student Name</span> - 
+                        <span id="student-dept">Department</span>
+                    </div>
+                    <button class="btn btn-small logout-btn">Logout</button>
+                </div>
+            </nav>
+
+            <main class="dashboard-content">
+                <div class="panel">
+                    <h3>Overall Status: <span id="overall-statusBadge">In Progress</span></h3>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="overall-progress" style="width: 0%"></div>
+                    </div>
+                    <p><span id="progress-percentage">0%</span> Completed</p>
+                </div>
+
+                <h3>Department Clearances</h3>
+                <div class="departments-list" id="departments-list">
+                    <!-- Cards populated by JS -->
+                </div>
+                
+                <div class="panel center" id="registrar-panel">
+                    <h3>Final Action: Registrar Submission</h3>
+                    <p>Once all departments clear you, you can submit your final file to the Registrar.</p>
+                    <button id="submit-registrar-btn" class="btn disabled" disabled>
+                        Submit to Registrar
+                    </button>
+                </div>
+            </main>
+        </div>
+
+        <!-- Staff Dashboard -->
+        <div id="staff-dashboard" class="hidden">
+            <nav class="navbar panel">
+                <h2>Staff Dashboard (<span id="staff-dept-name">Dept</span>)</h2>
+                <div class="user-profile">
+                    <div>
+                        <span id="staff-name" style="font-weight:bold;">Staff Name</span>
+                    </div>
+                    <button class="btn btn-small logout-btn">Logout</button>
+                </div>
+            </nav>
+
+            <main class="dashboard-content">
+                <div class="panel">
+                    <h3>Clearance Requests</h3>
+                    <p style="margin-bottom: 15px; color:#666;">View and manage student requests for your department.</p>
+                    
+                    <div class="table-responsive">
+                        <table id="requests-table">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Remarks</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requests-tbody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="admin-dashboard" class="hidden">
+            <nav class="navbar panel">
+                <h2>Admin Dashboard</h2>
+                <div class="user-profile">
+                    <div><span style="font-weight:bold;">System Administrator</span></div>
+                    <button class="btn btn-small logout-btn">Logout</button>
+                </div>
+            </nav>
+
+            <main class="dashboard-content">
+                <!-- Manage Users Navigation -->
+                <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                    <button class="btn" id="show-students-btn">Manage Students</button>
+                    <button class="btn btn-secondary" id="show-staff-btn">Manage Staff</button>
+                </div>
+
+                <!-- Students Section -->
+                <div id="admin-students" class="panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h3>Manage Students</h3>
+                        <button class="btn btn-small" onclick="showAddUserModal('student')">+ Add Student</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Department</th>
+                                    <th>Password</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-students-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Staff Section -->
+                <div id="admin-staff" class="panel hidden">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h3>Manage Staff</h3>
+                        <button class="btn btn-small" onclick="showAddUserModal('staff')">+ Add Staff</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Staff ID</th>
+                                    <th>Name</th>
+                                    <th>Department Handled</th>
+                                    <th>Password</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-staff-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit User Modal (Admin) -->
+    <div id="user-modal" class="modal hidden">
+        <div class="modal-content panel">
+            <h3 id="modal-title">Add User</h3>
+            <form id="user-form">
+                <input type="hidden" id="modal-action-type">
+                <input type="hidden" id="modal-user-role">
+                <input type="hidden" id="modal-original-id">
+
+                <div class="input-group">
+                    <label for="m-userid">User ID / Username</label>
+                    <input type="text" id="m-userid" required>
+                </div>
+                <div class="input-group">
+                    <label for="m-name">Full Name</label>
+                    <input type="text" id="m-name" required>
+                </div>
+                <div class="input-group" id="m-dept-group">
+                    <label for="m-dept">Department / Handled Dept</label>
+                    <input type="text" id="m-dept" required>
+                </div>
+                <div class="input-group">
+                    <label for="m-password">Password</label>
+                    <input type="text" id="m-password" required>
+                </div>
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('user-modal')">Cancel</button>
+                    <button type="submit" class="btn">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Staff Action Modal (Approve/Reject with remarks) -->
+    <div id="staff-action-modal" class="modal hidden">
+        <div class="modal-content panel">
+            <h3 id="action-modal-title">Action Request</h3>
+            <p style="margin-bottom:10px;">Student: <strong id="action-student-id"></strong></p>
+            <form id="staff-action-form">
+                <input type="hidden" id="action-req-id">
+                <input type="hidden" id="action-decision">
+                
+                <div class="input-group">
+                    <label for="action-remarks">Remarks (Optional for Approve, Required for Reject)</label>
+                    <textarea id="action-remarks" rows="4" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px;"></textarea>
+                </div>
+                
+                <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('staff-action-modal')">Cancel</button>
+                    <button type="button" class="btn btn-reject" onclick="submitStaffAction('rejected')">Reject</button>
+                    <button type="button" class="btn btn-success" onclick="submitStaffAction('cleared')">Approve</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden">
+        <span id="toast-message"></span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
